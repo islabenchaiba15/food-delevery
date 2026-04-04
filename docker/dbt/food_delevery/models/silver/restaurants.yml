@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: restaurants
+    description: "Cleaned and normalized restaurant data, including commission buckets, activity status, and operating hour calculations."
+    columns:
+      - name: restaurant_id
+        description: "Primary key for each restaurant."
+        tests:
+          - unique
+          - not_null
+
+      - name: restaurant_name
+        description: "Name of the restaurant (title-case)."
+        tests:
+          - not_null
+
+      - name: plan_tier
+        description: "Subscription level (Basic, Premium, Elite)."
+        tests:
+          - accepted_values:
+              values: ['Basic', 'Premium', 'Elite']
+
+      - name: commission_bucket
+        description: "Commission rate categorization (Low, Medium, High)."
+
+      - name: restaurant_status
+        description: "Current availability status (Active, Inactive, Featured)."
+
+      - name: is_active
+        description: "Boolean indicating if the restaurant is currently operational."
+
+      - name: dq_inactive_but_featured
+        description: "Inconsistency flag: TRUE if the restaurant is featured but marked inactive."

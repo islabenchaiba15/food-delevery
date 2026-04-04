@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: food_delivery_raw
+    database: FOOD_DELIVERY_DW
+    schema: BRONZE
+    tables:
+      # Core Ordering Flow
+      - name: ORDERS
+      - name: PAYMENTS
+      - name: DELIVERY
+      - name: REVIEWS
+      
+      # Core Entities
+      - name: USERS
+      - name: RESTAURANTS
+      - name: DRIVERS
+      - name: CUSTOMERS
+      
+      # Additional Systems
+      - name: BILLING
+      - name: PROMOTIONS

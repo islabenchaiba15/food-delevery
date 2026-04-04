@@ -1,0 +1,13 @@
+food_delevery:
+  outputs:
+    dev:
+      account: ck51442.uae-north.azure
+      database: FOOD_DELIVERY_DW
+      password: islamBENCHAIBA2002+
+      role: ACCOUNTADMIN
+      schema: TSFORM
+      threads: 3
+      type: snowflake
+      user: islambenchaiba
+      warehouse: COMPUTE_WH
+  target: dev

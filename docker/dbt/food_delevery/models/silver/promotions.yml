@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: promotions
+    description: "Cleaned and normalized promotions data, including fixed usage limits, discount caps, and duration calculations."
+    columns:
+      - name: promo_id
+        description: "Primary key for each promotion."
+        tests:
+          - unique
+          - not_null
+
+      - name: promo_code
+        description: "Unique string code used for applied promotions (uppercase)."
+        tests:
+          - not_null
+
+      - name: restaurant_scope
+        description: "Standardized scope (Platform-Wide or Restaurant ID)."
+
+      - name: promo_stage
+        description: "Current stage in the promotion lifecycle (Upcoming, Active, Expired)."
+
+      - name: usage_rate_pct
+        description: "Percentage of usage limit attained (0-100%)."
+
+      - name: is_currently_live
+        description: "Flag indicating if the current date is between the start and end dates."
+
+      - name: dq_over_usage_limit
+        description: "Data quality flag: TRUE if the original data showed more uses than the allowed limit."

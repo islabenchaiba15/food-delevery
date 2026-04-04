@@ -1,0 +1,19 @@
+[2026-04-03T07:36:48.542+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-04-03T07:36:48.828+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: minio_to_snowflake_pipeline.process_and_load scheduled__2026-04-01T11:00:00+00:00 [queued]>
+[2026-04-03T07:36:48.871+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: minio_to_snowflake_pipeline.process_and_load scheduled__2026-04-01T11:00:00+00:00 [queued]>
+[2026-04-03T07:36:48.893+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2026-04-03T07:36:48.956+0000] {taskinstance.py:2330} INFO - Executing <Task(PythonOperator): process_and_load> on 2026-04-01 11:00:00+00:00
+[2026-04-03T07:36:48.997+0000] {standard_task_runner.py:90} INFO - Running: ['airflow', 'tasks', 'run', 'minio_to_snowflake_pipeline', 'process_and_load', 'scheduled__2026-04-01T11:00:00+00:00', '--job-id', '53', '--raw', '--subdir', 'DAGS_FOLDER/minio_to_snowflake.py', '--cfg-path', '/tmp/tmpiqvazt7u']
+[2026-04-03T07:36:49.016+0000] {logging_mixin.py:188} WARNING - /home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py:62 DeprecationWarning: This process (pid=2420) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-04-03T07:36:49.017+0000] {standard_task_runner.py:91} INFO - Job 53: Subtask process_and_load
+[2026-04-03T07:36:49.019+0000] {standard_task_runner.py:64} INFO - Started process 2430 to run task
+[2026-04-03T07:36:49.321+0000] {task_command.py:426} INFO - Running <TaskInstance: minio_to_snowflake_pipeline.process_and_load scheduled__2026-04-01T11:00:00+00:00 [running]> on host 982f7ea64bb9
+[2026-04-03T07:36:49.860+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='minio_to_snowflake_pipeline' AIRFLOW_CTX_TASK_ID='process_and_load' AIRFLOW_CTX_EXECUTION_DATE='2026-04-01T11:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2026-04-01T11:00:00+00:00'
+[2026-04-03T07:36:49.869+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-04-03T07:36:50.273+0000] {logging_mixin.py:188} INFO - No new parquet files to process.
+[2026-04-03T07:36:50.283+0000] {python.py:237} INFO - Done. Returned value was: None
+[2026-04-03T07:36:50.287+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-04-03T07:36:50.405+0000] {taskinstance.py:1206} INFO - Marking task as SUCCESS. dag_id=minio_to_snowflake_pipeline, task_id=process_and_load, run_id=scheduled__2026-04-01T11:00:00+00:00, execution_date=20260401T110000, start_date=20260403T073648, end_date=20260403T073650
+[2026-04-03T07:36:50.888+0000] {local_task_job_runner.py:243} INFO - Task exited with return code 0
+[2026-04-03T07:36:51.155+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-04-03T07:36:51.208+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

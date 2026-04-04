@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: drivers
+    description: "Cleaned and normalized driver performance data, including vehicle capacity logic, months on platform, and performance tiers."
+    columns:
+      - name: driver_id
+        description: "Primary key for the driver."
+        tests:
+          - unique
+          - not_null
+
+      - name: full_name
+        description: "Combined first and last names (title-case)."
+
+      - name: vehicle_type
+        description: "Standardized vehicle type (Car, Van, Motorcycle, etc.)."
+        tests:
+          - accepted_values:
+              values: ['Car', 'Van', 'Motorcycle', 'Scooter', 'Bicycle']
+
+      - name: performance_tier
+        description: "Calculated based on rating and on-time performance (Top Performer, Good Performer, etc.)."
+
+      - name: tenure_bucket
+        description: "Categorization based on time on the platform (New, Experienced, Veteran)."
+
+      - name: dq_active_failed_background
+        description: "Security flag: TRUE if a driver is currently active but their background check failed."

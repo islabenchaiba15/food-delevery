@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: users
+    description: "Cleaned and normalized user data from the bronze layer."
+    columns:
+      - name: user_id
+        description: "Primary key for the user."
+        tests:
+          - unique
+          - not_null
+      - name: email
+        description: "Standardized email address (lowercase)."
+        tests:
+          - not_null
+      - name: is_email_verified
+        description: "Boolean flag indicating if the email is verified."
+      - name: registered_date
+        description: "Date the user registered."

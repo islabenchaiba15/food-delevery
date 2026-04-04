@@ -1,0 +1,23 @@
+# ── MinIO ─────────────────────────────────────────────────────────────────────
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin123
+
+# ── PostgreSQL (Airflow metadata DB) ──────────────────────────────────────────
+POSTGRES_USER=airflow
+POSTGRES_PASSWORD=airflow123
+POSTGRES_DB=airflow
+
+# ── Airflow admin account ──────────────────────────────────────────────────────
+AIRFLOW_ADMIN_USER=admin
+AIRFLOW_ADMIN_FIRSTNAME=Admin
+AIRFLOW_ADMIN_LASTNAME=User
+AIRFLOW_ADMIN_EMAIL=admin@fooddelivery.com
+AIRFLOW_ADMIN_PASSWORD=admin123
+
+# ── Snowflake (external – fill in your real values) ───────────────────────────
+SNOWFLAKE_ACCOUNT=your_account.snowflakecomputing.com
+SNOWFLAKE_USER=your_user
+SNOWFLAKE_PASSWORD=your_password
+SNOWFLAKE_DATABASE=FOOD_DELIVERY_DW
+SNOWFLAKE_WAREHOUSE=COMPUTE_WH
+SNOWFLAKE_ROLE=SYSADMIN

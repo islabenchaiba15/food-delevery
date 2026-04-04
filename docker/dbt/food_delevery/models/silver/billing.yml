@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: billing
+    description: "Cleaned and normalized billing data, including corrected totals, date consistency logic, and overdue flags."
+    columns:
+      - name: invoice_id
+        description: "Primary key for the invoice."
+        tests:
+          - unique
+          - not_null
+
+      - name: restaurant_id
+        description: "Foreign key linking to the restaurants table."
+        tests:
+          - not_null
+
+      - name: status
+        description: "Standardized billing status (Paid, Pending, Partial, etc.)."
+        tests:
+          - accepted_values:
+              values: ['Paid', 'Pending', 'Partial', 'Paid - Date Unknown']
+
+      - name: total_usd
+        description: "Recomputed total amount based on fee components (original rows were incorrectly calculated)."
+
+      - name: is_overdue
+        description: "Boolean flag: TRUE if the status is Pending/Partial and the current date is past the due date."
+
+      - name: flag_total_mismatch
+        description: "Audit flag: TRUE if the original total did not match the recomputed total."

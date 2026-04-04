@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: customers
+    description: "Cleaned and normalized customer profile data, including zip code padding and corrected average order values."
+    columns:
+      - name: customer_id
+        description: "Primary key for the customer profile."
+        tests:
+          - unique
+          - not_null
+
+      - name: user_id
+        description: "Foreign key linking back to the users table."
+        tests:
+          - not_null
+
+      - name: full_name
+        description: "Combined first and last names (title-case)."
+
+      - name: age_years
+        description: "Calculated age based on date of birth."
+        tests:
+          - not_null
+
+      - name: loyalty_tier
+        description: "Standardized loyalty category (Bronze, Silver, Gold, etc.)."
+        tests:
+          - accepted_values:
+               values: ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond']
+
+      - name: dq_loyalty_mismatch
+        description: "Inconsistency flag: TRUE if a customer has high spend but 0 loyalty points."
