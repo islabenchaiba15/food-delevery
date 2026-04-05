@@ -31,6 +31,5 @@ models:
 
       - name: avg_speed_kmh
         description: "Calculated average speed of the delivery in kilometers per hour."
- Wilkinson:
       - name: is_late
         description: "Boolean flag set to true if the actual delivery time exceeded the estimate."
