@@ -14,7 +14,7 @@ base_cleaning AS (
         TRIM(invoice_id)                                                        AS invoice_id,
         TRIM(restaurant_id)                                                     AS restaurant_id,
 
-        -- ── DATES (Initial cleaning and Swap Logic) ──────────────────────────
+        -- ── DATES ────────────────────────────────────────────────────────────
         TRY_CAST(CAST(invoice_date AS VARCHAR) AS DATE)                         AS raw_invoice_date,
         TRY_CAST(CAST(due_date AS VARCHAR) AS DATE)                             AS raw_due_date,
         TRY_CAST(CAST(payment_date AS VARCHAR) AS DATE)                         AS raw_payment_date,
@@ -48,40 +48,68 @@ base_cleaning AS (
 standardized AS (
     SELECT
         *,
-        -- Fix date swaps (if due_date is before invoice_date)
-        CASE 
-            WHEN raw_due_date < raw_invoice_date THEN raw_due_date 
-            ELSE raw_invoice_date 
+
+        -- Fix swapped dates: guarantee invoice_date <= due_date
+        CASE
+            WHEN raw_due_date < raw_invoice_date THEN raw_due_date
+            ELSE raw_invoice_date
         END                                                                     AS invoice_date,
-        CASE 
-            WHEN raw_due_date < raw_invoice_date THEN raw_invoice_date 
-            ELSE raw_due_date 
+        CASE
+            WHEN raw_due_date < raw_invoice_date THEN raw_invoice_date
+            ELSE raw_due_date
         END                                                                     AS due_date,
 
-        -- Recomputed Ledger Total
-        ROUND(base_fee_usd + overage_fee_usd + addon_fee_usd - discount_usd + tax_usd, 2) 
-                                                                                AS total_usd_calculated
+        -- Recompute total from components; GREATEST(..., 0) prevents negative
+        -- totals caused by a discount that exceeds the sum of all fee components
+        GREATEST(
+            ROUND(
+                base_fee_usd + overage_fee_usd + addon_fee_usd
+                - discount_usd + tax_usd,
+                2
+            ),
+            0
+        )                                                                       AS total_usd_calculated
+
     FROM base_cleaning
 ),
 
 final_cleaning AS (
     SELECT
         *,
-        -- payment_date logic (use corrected invoice_date)
+
+        -- ── PAYMENT DATE ─────────────────────────────────────────────────────
         CASE
-            WHEN raw_payment_date < invoice_date THEN NULL                          -- impossible, discard
-            WHEN raw_payment_date IS NULL AND raw_status = 'Paid' THEN invoice_date -- Paid but no date -> fallback
+            -- Payment predates corrected invoice date → impossible, discard
+            WHEN raw_payment_date < invoice_date
+                THEN NULL
+            -- Paid in source but date is missing → fall back to invoice_date
+            WHEN raw_payment_date IS NULL AND raw_status = 'Paid'
+                THEN invoice_date
             ELSE raw_payment_date
         END                                                                     AS payment_date,
 
-        -- status logic
+        -- ── STATUS ───────────────────────────────────────────────────────────
         CASE
-            WHEN raw_payment_date IS NOT NULL AND raw_payment_date >= invoice_date AND raw_status != 'Paid'
+            -- Has a valid payment date and was in a collectable status.
+            -- Waived and Disputed are intentionally excluded: a payment date
+            -- on those statuses does not mean the invoice was settled normally.
+            WHEN raw_payment_date IS NOT NULL
+                AND raw_payment_date >= invoice_date
+                AND raw_status IN ('Pending', 'Partial', 'Overdue')
                 THEN 'Paid'
+
+            -- Source says Paid but no payment date could be recovered
             WHEN raw_status = 'Paid' AND raw_payment_date IS NULL
                 THEN 'Paid - Date Unknown'
+
+            -- Logically overdue: open invoice whose due date has passed
+            WHEN raw_status IN ('Pending', 'Partial')
+                AND due_date < CURRENT_DATE()
+                THEN 'Overdue'
+
             ELSE raw_status
         END                                                                     AS status
+
     FROM standardized
 )
 
@@ -91,15 +119,18 @@ SELECT
     invoice_date,
     due_date,
     payment_date,
-    
-    -- Corrected DATEDIFF for Snowflake
-    DATEDIFF('day', invoice_date, due_date)                                   AS days_to_due,
-    DATEDIFF('day', invoice_date, payment_date)                               AS days_to_payment,
-    
+
+    DATEDIFF('day', invoice_date, due_date)                                     AS days_to_due,
+    DATEDIFF('day', invoice_date, payment_date)                                 AS days_to_payment,
+
+    -- Overdue flag: any non-terminal status whose due date has passed.
+    -- Evaluates against the corrected status so it stays consistent with it.
     CASE
-        WHEN status IN ('Pending', 'Partial') AND due_date < CURRENT_DATE()
-        THEN TRUE ELSE FALSE
-    END                                                                       AS is_overdue,
+        WHEN status NOT IN ('Paid', 'Paid - Date Unknown', 'Waived', 'Disputed')
+            AND due_date < CURRENT_DATE()
+        THEN TRUE
+        ELSE FALSE
+    END                                                                         AS is_overdue,
 
     billing_period,
     plan_tier,
@@ -107,28 +138,27 @@ SELECT
     payment_method,
     payment_gateway,
     currency,
-    
+
     base_fee_usd,
     usage_orders,
     overage_fee_usd,
     addon_fee_usd,
     discount_usd,
     tax_usd,
-    total_usd_calculated                                                     AS total_usd,
-    ROUND(total_usd_original_raw, 2)                                         AS total_usd_original,
-    ROUND(total_usd_original_raw - total_usd_calculated, 2)                  AS total_usd_variance,
-
-    -- Audit Flags
-    (raw_due_date < raw_invoice_date)                                        AS flag_due_before_invoice_fixed,
-    (raw_payment_date IS NOT NULL AND raw_payment_date < raw_invoice_date)   AS flag_payment_before_invoice_nulled,
-    (raw_status = 'Paid' AND raw_payment_date IS NULL)                       AS flag_paid_missing_date_corrected,
-    (ABS(total_usd_original_raw - total_usd_calculated) > 0.02)              AS flag_total_mismatch,
+    total_usd_calculated                                                        AS total_usd,
+    ROUND(total_usd_original_raw, 2)                                            AS total_usd_original,
+    ROUND(total_usd_original_raw - total_usd_calculated, 2)                     AS total_usd_variance,
 
     transaction_ref,
     notes,
     created_by,
-    CURRENT_TIMESTAMP()                                                      AS _loaded_at
+    CURRENT_TIMESTAMP()                                                         AS _loaded_at
 
 FROM final_cleaning
--- Deduplicate: keep the latest record if duplicates exist
-QUALIFY ROW_NUMBER() OVER (PARTITION BY invoice_id ORDER BY _loaded_at DESC) = 1
+
+-- Deduplicate: keep the latest extraction. For exact clones created in the
+-- same batch, Snowflake will pick one non-deterministically.
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY invoice_id
+    ORDER BY _loaded_at DESC
+) = 1

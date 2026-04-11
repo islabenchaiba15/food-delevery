@@ -1,6 +1,6 @@
 -- ============================================================
 -- GOLD LAYER — Payment Fact (fct_payments)
--- Purpose: Financial transaction ledger & Gateway performance
+-- Purpose: Financial transaction ledger with optimized integer Surrogate Keys
 -- ============================================================
 
 WITH silver_payments AS (
@@ -9,16 +9,16 @@ WITH silver_payments AS (
 
 final_payments AS (
     SELECT
-        -- IDs
-        payment_id,
-        order_id,
-        customer_id,
+        -- Surrogate Keys (Optimized Integer)
+        ABS(HASH(payment_id))                               AS payment_sk,
+        ABS(HASH(order_id))                                 AS order_sk,
+        ABS(HASH(customer_id))                              AS customer_sk,
         transaction_id,
 
         -- Timestamps
         payment_date,
         payment_time,
-        payment_at_ts                                       AS payment_at_ts,
+        payment_at_ts,
 
         -- Payment Details
         payment_method,
@@ -26,15 +26,14 @@ final_payments AS (
         currency,
 
         -- Financials (Cleaned)
-        amount_usd_abs                                      AS amount_usd,
-        amount_usd_raw,
+        amount_usd,
         fee_amount_usd                                      AS gateway_fee_usd,
         net_amount_usd,
         refund_amount_usd                                   AS refund_amount,
 
         -- Status & Performance
         status                                              AS payment_status,
-        is_refunded_flag                                    AS is_refunded,
+        is_refunded,
         fraud_score,
         fraud_risk_level,
 

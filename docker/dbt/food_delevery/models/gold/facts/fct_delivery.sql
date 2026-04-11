@@ -1,6 +1,6 @@
 -- ============================================================
 -- GOLD LAYER — Delivery Fact (fct_delivery)
--- Purpose: Operational logistics & performance metrics
+-- Purpose: Operational logistics with optimized integer Surrogate Keys
 -- ============================================================
 
 WITH silver_delivery AS (
@@ -9,12 +9,12 @@ WITH silver_delivery AS (
 
 final_delivery AS (
     SELECT
-        -- IDs
-        delivery_id,
-        order_id,
-        driver_id,
-        restaurant_id,
-        customer_id,
+        -- Surrogate Keys (Optimized Integer)
+        ABS(HASH(delivery_id))                              AS delivery_sk,
+        ABS(HASH(order_id))                                 AS order_sk,
+        ABS(HASH(driver_id))                                AS driver_sk,
+        ABS(HASH(restaurant_id))                            AS restaurant_sk,
+        ABS(HASH(customer_id))                              AS customer_sk,
 
         -- Timestamps
         pickup_time,
@@ -30,7 +30,7 @@ final_delivery AS (
         dropoff_lng,
 
         -- Performance (Durations & Delay)
-        duration_min_calculated                              AS duration_minutes,
+        actual_time_min                                      AS duration_minutes,
         estimated_time_min                                   AS estimated_minutes,
         actual_time_min                                      AS actual_minutes,
         delay_min                                           AS delay_minutes,
@@ -49,7 +49,7 @@ final_delivery AS (
         status                                              AS delivery_status,
         driver_rating,
         driver_rating_bucket,
-        tip_amount,
+        tip_usd                                             AS tip_amount,
         tip_bucket,
         late_reason,
         COALESCE(notes, 'None')                             AS driver_notes,

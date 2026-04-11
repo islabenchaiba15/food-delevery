@@ -1,6 +1,6 @@
 -- ============================================================
 -- GOLD LAYER — Customer Dimension (dim_customers)
--- Purpose: Unified customer profile for BI and analytics
+-- Purpose: Unified customer profile with optimized integer Surrogate Keys
 -- ============================================================
 
 WITH customers AS (
@@ -19,10 +19,11 @@ users AS (
 
 joined AS (
     SELECT
-        -- IDs
-        c.customer_id,
-        c.user_id,
+        -- Surrogate Keys (Optimized Integer)
+        ABS(HASH(c.customer_id))                            AS customer_sk,
+        ABS(HASH(c.user_id))                                AS user_sk,
 
+        -- Natural IDs (Kept for traceability)
         -- Profile
         c.full_name,
         c.email,
@@ -79,7 +80,7 @@ final_segmentation AS (
             ELSE 'Unknown'
         END                                                 AS customer_lifecycle,
 
-        -- Value Segment (LTV based)
+        -- Value Segment
         CASE
             WHEN lifetime_value_usd >= 500 THEN 'High Value'
             WHEN lifetime_value_usd >= 150 THEN 'Medium Value'

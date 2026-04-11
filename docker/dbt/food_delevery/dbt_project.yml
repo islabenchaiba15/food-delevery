@@ -39,3 +39,7 @@ models:
     gold:
       +materialized: table
       +schema: GOLD
+      
+    revenue:
+      +materialized: table
+      +schema: REVENUE

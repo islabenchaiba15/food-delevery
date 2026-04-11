@@ -1,0 +1,24 @@
+# Docker
+docker/logs/
+docker/dbt/food_delevery/target/
+docker/dbt/food_delevery/dbt_packages/
+docker/dbt/food_delevery/logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
