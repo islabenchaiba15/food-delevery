@@ -27,13 +27,9 @@ The pipeline was built on **Apache Kafka → S3 Bucket → dbt → Data Warehous
 
 ### Pipeline Overview
 
-```
-[Data Sources]  →  [Streaming]  →  [Storage]   →  [Data Warehouse]  →  [BI Layer]
-  APIs / CSVs       Apache Kafka     S3 Bucket       Bronze / Silver        Power BI
-  (10 tables)       (real-time)      (Data Storage)  / Gold (dbt)           Dashboards
-```
+<img width="1672" height="941" alt="architecture" src="https://github.com/user-attachments/assets/4c5ddf9f-dca7-4a99-a657-3772bf193bad" />
 
-> 📌 *Full architecture diagram available in `/assets/architecture.png`*
+> 📌 *Full architecture diagram available in `/architecture`*
 
 ### Medallion Architecture
 
@@ -233,37 +229,6 @@ Starter subscribers generate $364/subscriber vs. $1,353 for Enterprise — a 3.7
 - [ ] **dbt documentation site:** Publish the full dbt docs site (`dbt docs generate`) as a living data dictionary accessible to all business stakeholders
 - [ ] **PII masking layer:** Implement column-level masking in the Silver layer for customer PII fields (email, phone, address) to ensure GDPR and CCPA compliance in all Gold-layer analytics outputs
 - [ ] **Source freshness monitoring:** Add dbt `source freshness` checks to alert on stale ingestion from any of the 10 source tables
-
----
-
-## 🗂️ Repository Structure
-
-```
-quickeats-analytics/
-│
-├── dbt/
-│   ├── models/
-│   │   ├── bronze/          # Raw source staging models
-│   │   ├── silver/          # Cleaned and typed intermediate models
-│   │   └── gold/            # Business-ready fact/dim/mart models
-│   ├── tests/               # dbt data quality tests
-│   └── dbt_project.yml
-│
-├── airflow/
-│   └── dags/                # Pipeline DAGs (ingestion, transformation, refresh)
-│
-├── powerbi/
-│   ├── revenue_operations.pbix
-│   └── saas_metrics.pbix
-│
-├── assets/
-│   └── architecture.png     # Pipeline architecture diagram
-│
-├── reports/
-│   └── QuickEats_Analysis_Report.pdf
-│
-└── README.md
-```
 
 ---
 
