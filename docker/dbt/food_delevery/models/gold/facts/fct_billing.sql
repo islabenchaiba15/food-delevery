@@ -6,7 +6,7 @@
 WITH silver_billing AS (
     SELECT * FROM {{ ref('billing') }}
 ),
-
+///////////
 final_billing AS (
     SELECT
         -- Surrogate Keys (Optimized Integer)
